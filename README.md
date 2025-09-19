@@ -14,19 +14,15 @@ Cross-platform Rust tool that captures frames from mGBA windows and creates GIFs
 
 ## Installation
 
-Install as a global cargo command:
-
-```bash
-cargo install --path .
-```
-
-Or install from a git repository:
+For now this will not be published as a crate, so to install from the git repository:
 
 ```bash
 cargo install --git https://github.com/zpg6/agbrs-capture
 ```
 
 ## Usage
+
+Then you can run from your terminal like so:
 
 ```bash
 # Run in current directory with defaults (10fps, 3 seconds)

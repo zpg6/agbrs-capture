@@ -18,9 +18,11 @@ use xcap::Window;
 #[command(author, version, about, long_about = None)]
 #[command(about = "Captures frames from mGBA windows and creates GIFs for agbrs binaries")]
 struct Args {
-    /// Path to the agbrs project directory
-    #[arg(help = "Directory containing Cargo.toml and src/bin/ with agbrs binaries")]
-    project_dir: PathBuf,
+    /// Path to the agbrs project directory (defaults to current directory)
+    #[arg(
+        help = "Directory containing Cargo.toml and src/bin/ with agbrs binaries (defaults to current directory)"
+    )]
+    project_dir: Option<PathBuf>,
 
     /// Frames per second for the output GIF
     #[arg(long, default_value_t = 10.0)]
@@ -38,24 +40,29 @@ struct Args {
 async fn main() -> Result<()> {
     let args = Args::parse();
 
-    if !args.project_dir.exists() {
+    // Use current directory if no project directory is provided
+    let project_dir = args
+        .project_dir
+        .unwrap_or_else(|| std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")));
+
+    if !project_dir.exists() {
         return Err(anyhow::anyhow!(
             "Directory does not exist: {}",
-            args.project_dir.display()
+            project_dir.display()
         ));
     }
 
-    if !is_agbrs_project_dir(&args.project_dir) {
+    if !is_agbrs_project_dir(&project_dir) {
         return Err(anyhow::anyhow!(
             "Directory does not appear to be an agbrs project: {}",
-            args.project_dir.display()
+            project_dir.display()
         ));
     }
 
     let frame_count = (args.fps * args.duration).ceil() as u32;
     let frame_delay_ms = (1000.0 / args.fps) as u64;
 
-    println!("Using agbrs project at: {}", args.project_dir.display());
+    println!("Using agbrs project at: {}", project_dir.display());
     println!(
         "GIF settings: {}fps, {}s duration, {} frames",
         args.fps, args.duration, frame_count
@@ -63,11 +70,11 @@ async fn main() -> Result<()> {
 
     std::fs::create_dir_all("out")?;
 
-    let binaries = discover_binaries(&args.project_dir)?;
+    let binaries = discover_binaries(&project_dir)?;
     if binaries.is_empty() {
         return Err(anyhow::anyhow!(
             "No binary files found in {}/src/bin/",
-            args.project_dir.display()
+            project_dir.display()
         ));
     }
 
@@ -76,12 +83,12 @@ async fn main() -> Result<()> {
     println!("Setting up GBA development environment...");
     setup_gba_target().await?;
     println!("Pre-building all GBA binaries...");
-    prebuild_binaries(&binaries, &args.project_dir).await?;
+    prebuild_binaries(&binaries, &project_dir).await?;
     println!("All binaries built successfully!\n");
 
     for binary in &binaries {
         println!("Capturing {}...", binary);
-        capture_binary_gif(binary, &args.project_dir, frame_count, frame_delay_ms).await?;
+        capture_binary_gif(binary, &project_dir, frame_count, frame_delay_ms).await?;
         println!();
     }
 

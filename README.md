@@ -4,13 +4,19 @@ Cross-platform Rust tool that captures frames from mGBA windows and creates GIFs
 
 ![Example](./docs/color_spin.gif)
 
-**Features:**
+## Features
 
 - Automatically discovers and builds binaries in `src/bin/` or `src/main.rs`
 - Configurable GIF settings (FPS and duration)
 - Parallel frame capture for fast execution
 - Automatic mGBA window detection with retry logic
 - Cross-platform support (macOS, Windows, Linux)
+
+## Roadmap
+
+- [ ] Before capture: configurable delays and button sequences
+- [ ] During capture: configurable delays and button sequences
+- [ ] Configurable mGBA window size for capture
 
 ## Installation
 

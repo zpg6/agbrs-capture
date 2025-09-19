@@ -291,9 +291,14 @@ async fn capture_binary_gif(
         frames.push(result);
     }
 
+    // Close mGBA window immediately after capture is complete
+    child.kill()?;
+    println!("Frame capture complete! mGBA window closed.");
+
     // Ensure frames are in correct chronological order
     frames.sort_by_key(|(index, _)| *index);
 
+    println!("Building GIF from {} captured frames...", frame_count);
     for (index, frame) in frames {
         add_frame_to_gif(&mut encoder, frame, frame_delay_ms)?;
         if index % 10 == 0 {
@@ -305,8 +310,6 @@ async fn capture_binary_gif(
             );
         }
     }
-
-    child.kill()?;
 
     println!("Created GIF: {}", gif_path);
     Ok(())

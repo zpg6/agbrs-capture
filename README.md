@@ -6,7 +6,7 @@ Cross-platform Rust tool that captures frames from mGBA windows and creates GIFs
 
 **Features:**
 
-- Automatically discovers and builds all binaries in `src/bin/`
+- Automatically discovers and builds binaries in `src/bin/` or `src/main.rs`
 - Configurable GIF settings (FPS and duration)
 - Parallel frame capture for fast execution
 - Automatic mGBA window detection with retry logic
@@ -48,7 +48,7 @@ agbrs-capture --help
 
 This will:
 
-1. Discover and pre-build all binaries in `src/bin/` (defaults to current directory)
+1. Discover and pre-build all binaries in `src/bin/` or the main binary in `src/main.rs` (defaults to current directory)
 2. Run each binary and wait for mGBA to start
 3. Capture frames and create GIF files in the `out/` folder
 

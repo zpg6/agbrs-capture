@@ -20,7 +20,7 @@ use xcap::Window;
 struct Args {
     /// Path to the agbrs project directory (defaults to current directory)
     #[arg(
-        help = "Directory containing Cargo.toml and src/bin/ with agbrs binaries (defaults to current directory)"
+        help = "Directory containing Cargo.toml and src/bin/ or src/main.rs with agbrs binaries (defaults to current directory)"
     )]
     project_dir: Option<PathBuf>,
 
@@ -73,7 +73,8 @@ async fn main() -> Result<()> {
     let binaries = discover_binaries(&project_dir)?;
     if binaries.is_empty() {
         return Err(anyhow::anyhow!(
-            "No binary files found in {}/src/bin/",
+            "No binary files found in {}/src/bin/ or {}/src/main.rs",
+            project_dir.display(),
             project_dir.display()
         ));
     }
@@ -96,28 +97,54 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-/// Discovers all Rust binary files in src/bin directory
+/// Discovers all Rust binary files in src/bin directory or src/main.rs
 fn discover_binaries(project_dir: &Path) -> Result<Vec<String>> {
     let src_bin_dir = project_dir.join("src/bin");
-
-    if !src_bin_dir.exists() {
-        return Ok(Vec::new());
-    }
-
+    let src_main = project_dir.join("src/main.rs");
     let mut binaries = Vec::new();
 
-    for entry in std::fs::read_dir(&src_bin_dir)? {
-        let entry = entry?;
-        let path = entry.path();
+    // Check for src/bin/*.rs files first
+    if src_bin_dir.exists() {
+        for entry in std::fs::read_dir(&src_bin_dir)? {
+            let entry = entry?;
+            let path = entry.path();
 
-        if path.is_file() {
-            if let Some(extension) = path.extension() {
-                if extension == "rs" {
-                    if let Some(file_name) = path.file_stem() {
-                        if let Some(binary_name) = file_name.to_str() {
-                            binaries.push(binary_name.to_string());
+            if path.is_file() {
+                if let Some(extension) = path.extension() {
+                    if extension == "rs" {
+                        if let Some(file_name) = path.file_stem() {
+                            if let Some(binary_name) = file_name.to_str() {
+                                binaries.push(binary_name.to_string());
+                            }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    // If no binaries found in src/bin/, check for src/main.rs
+    if binaries.is_empty() && src_main.exists() {
+        // For src/main.rs projects, use the package name from Cargo.toml
+        let cargo_toml_path = project_dir.join("Cargo.toml");
+        if let Ok(cargo_content) = std::fs::read_to_string(&cargo_toml_path) {
+            // Parse the package name from Cargo.toml
+            for line in cargo_content.lines() {
+                if line.trim().starts_with("name") {
+                    if let Some(name_part) = line.split('=').nth(1) {
+                        let name = name_part.trim().trim_matches('"').trim_matches('\'');
+                        binaries.push(name.to_string());
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // Fallback to directory name if package name not found
+        if binaries.is_empty() {
+            if let Some(dir_name) = project_dir.file_name() {
+                if let Some(name_str) = dir_name.to_str() {
+                    binaries.push(name_str.to_string());
                 }
             }
         }
@@ -131,9 +158,11 @@ fn discover_binaries(project_dir: &Path) -> Result<Vec<String>> {
 fn is_agbrs_project_dir(path: &Path) -> bool {
     let cargo_toml = path.join("Cargo.toml");
     let src_bin = path.join("src/bin");
+    let src_main = path.join("src/main.rs");
     let cargo_config = path.join(".cargo/config.toml");
 
-    if !cargo_toml.exists() || !src_bin.exists() {
+    // Must have Cargo.toml and either src/bin/ or src/main.rs
+    if !cargo_toml.exists() || (!src_bin.exists() && !src_main.exists()) {
         return false;
     }
 
@@ -180,11 +209,20 @@ async fn setup_gba_target() -> Result<()> {
 
 /// Pre-builds all binaries to eliminate compilation delays during capture
 async fn prebuild_binaries(binaries: &[String], project_dir: &Path) -> Result<()> {
+    let has_src_bin = project_dir.join("src/bin").exists();
+    
     for binary in binaries {
         println!("Building {}...", binary);
+        let mut args = vec!["+nightly", "build", "--release"];
+        
+        // Only use --bin flag for src/bin projects
+        if has_src_bin {
+            args.extend(["--bin", binary]);
+        }
+        
         let output = Command::new("cargo")
             .current_dir(project_dir)
-            .args(&["+nightly", "build", "--bin", binary, "--release"])
+            .args(&args)
             .output()?;
 
         if !output.status.success() {
@@ -202,9 +240,17 @@ async fn capture_binary_gif(
     frame_count: u32,
     frame_delay_ms: u64,
 ) -> Result<()> {
+    let has_src_bin = project_dir.join("src/bin").exists();
+    let mut args = vec!["+nightly", "run", "--release"];
+    
+    // Only use --bin flag for src/bin projects
+    if has_src_bin {
+        args.extend(["--bin", binary_name]);
+    }
+    
     let mut child = Command::new("cargo")
         .current_dir(project_dir)
-        .args(&["+nightly", "run", "--bin", binary_name, "--release"])
+        .args(&args)
         .spawn()?;
 
     println!("Waiting for mGBA to start...");

@@ -1,13 +1,13 @@
 [package]
-name = "gba-gif-capture"
+name = "agbrs-capture"
 version = "0.1.0"
 edition = "2021"
 description = "Cross-platform tool for agbrs projects that captures frames from mGBA windows and creates GIFs"
 license = "MIT"
-repository = "https://github.com/zpg6/gba-gif-capture"
+repository = "https://github.com/zpg6/agbrs-capture"
 
 [[bin]]
-name = "gba-capture"
+name = "agbrs-capture"
 path = "src/main.rs"
 
 [dependencies]

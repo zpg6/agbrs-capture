@@ -23,20 +23,26 @@ cargo install --path .
 Or install from a git repository:
 
 ```bash
-cargo install --git https://github.com/yourusername/gba-capture
+cargo install --git https://github.com/zpg6/agbrs-capture
 ```
 
 ## Usage
 
 ```bash
-# Basic usage with defaults (10fps, 3 seconds)
-gba-capture /path/to/agbrs-project
+# Run in current directory with defaults (10fps, 3 seconds)
+agbrs-capture
+
+# Run in specific directory
+agbrs-capture /path/to/agbrs-project
 
 # Custom settings
-gba-capture /path/to/agbrs-project --fps 15 --duration 2.5
+agbrs-capture --fps 15 --duration 2.5
+
+# Custom settings with specific directory
+agbrs-capture /path/to/agbrs-project --fps 15 --duration 2.5
 
 # Get help
-gba-capture --help
+agbrs-capture --help
 ```
 
 ### Options
@@ -46,6 +52,6 @@ gba-capture --help
 
 This will:
 
-1. Discover and pre-build all binaries in `src/bin/`
+1. Discover and pre-build all binaries in `src/bin/` (defaults to current directory)
 2. Run each binary and wait for mGBA to start
 3. Capture frames and create GIF files in the `out/` folder

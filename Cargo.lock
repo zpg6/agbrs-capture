@@ -18,6 +18,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "320119579fcad9c21884f5c4861d16174d0e06250625266f50fe6898340abefa"
 
 [[package]]
+name = "agbrs-capture"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "gif",
+ "image 0.24.9",
+ "screenshots",
+ "tokio",
+ "xcap",
+]
+
+[[package]]
 name = "aligned-vec"
 version = "0.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -548,19 +561,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c31b6d751ae2c7f11320402d34e41349dd1016f8d5d45e48c4312bc8625af50c"
 dependencies = [
  "byteorder",
-]
-
-[[package]]
-name = "gba-gif-capture"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clap",
- "gif",
- "image 0.24.9",
- "screenshots",
- "tokio",
- "xcap",
 ]
 
 [[package]]

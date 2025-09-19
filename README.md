@@ -55,3 +55,11 @@ This will:
 1. Discover and pre-build all binaries in `src/bin/` (defaults to current directory)
 2. Run each binary and wait for mGBA to start
 3. Capture frames and create GIF files in the `out/` folder
+
+## License
+
+[MIT](./LICENSE)
+
+## Contributing
+
+Contributions are welcome! Whether it's bug fixes, feature additions, or documentation improvements, we appreciate your help in making this project better. For major changes or new features, please open an issue first to discuss what you would like to change.

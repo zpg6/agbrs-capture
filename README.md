@@ -1,6 +1,6 @@
 # GBA GIF Capture Tool
 
-Cross-platform Rust tool that captures frames from mGBA windows and creates GIFs automatically for each binary in an agbrs project.
+Cross-platform Rust tool that captures frames from mGBA windows and creates GIFs automatically for each binary in an [agbrs](https://agbrs.dev/) project (Rust framework for making Game Boy Advance games).
 
 ![Example](./docs/moving_square_hold.gif)
 

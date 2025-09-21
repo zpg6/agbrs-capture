@@ -4,6 +4,8 @@ Cross-platform Rust tool that captures frames from mGBA windows and creates GIFs
 
 ![Example](./docs/moving_square_hold.gif)
 
+^ Captured with button sequence: `R:500,wait:200,D:100,L:500,wait:200,U:500,wait:200,D:100,L:300`
+
 ## Features
 
 - Automatically discovers and builds binaries in `src/bin/` or `src/main.rs`

@@ -2,7 +2,7 @@
 
 Cross-platform Rust tool that captures frames from mGBA windows and creates GIFs automatically for each binary in an agbrs project.
 
-![Example](./docs/color_spin.gif)
+![Example](./docs/moving_square_hold.gif)
 
 ## Features
 
